@@ -3,7 +3,7 @@ open System.Collections.Generic
 type NoMissionaries = int
 type NoCannibals = int
 type Boat = bool
-type State = NoMissionaries * NoCannibals * Boat
+type State = NoMissionaries * NoCannibals * Boat    // No of missionaries and cannibals, and boat, on the left side of the river
 type StateHistory = State list
 type Action = NoMissionaries * NoCannibals
 
@@ -18,12 +18,12 @@ let goLeft (m1,c1,b1) (m2,c2) = (m1+m2,c1+c2,not b1)
 
 let goRight (m1,c1,b1) (m2,c2) = (m1-m2,c1-c2,not b1)
 
-// Find all valid and unvisited successor states of the given state
+// Find all valid and unvisited successor states of the given state, aka transition model
 let successors (state:State) (stateHistory:StateHistory) =
-    let allowedActions:Action list = [ (1,0); (0,1); (2,0); (0,2); (1,1) ]
+    let possibleActions:Action list = [ (1,0); (0,1); (2,0); (0,2); (1,1) ]
     let (_,_,boat) = state
     let doAction = if boat then goRight else goLeft
-    allowedActions |> List.fold (fun acc action -> 
+    possibleActions |> List.fold (fun acc action -> 
             let newState = doAction state action
             if (isValidState newState) && not (isDeadState newState) && not (List.contains newState stateHistory) then 
                 newState::acc else acc) []
@@ -38,7 +38,7 @@ let rec depthFirstSearch (state:State) (stateHistory:StateHistory) (results:Stat
         successors state stateHistory
         |> List.fold (fun acc newState -> depthFirstSearch newState (newState::stateHistory) acc) results
    
-let results1 = depthFirstSearch initialState stateHistory []
+let pathsDFS = depthFirstSearch initialState stateHistory []
 
 // Breadth-first search using a queue
 let breadthFirstSearch() =
@@ -56,4 +56,4 @@ let breadthFirstSearch() =
     fringe.Enqueue(initialState,[initialState])
     bfs fringe (new List<StateHistory>())
 
-let results2 = breadthFirstSearch() 
+let pathsBFS = breadthFirstSearch() 
